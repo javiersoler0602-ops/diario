@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Nuestra Historia De Amor 🤍</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Poppins, Dancing Script & Pacifico -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Pacifico&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+            cursive: ['Dancing Script', 'cursive'],
+            title: ['Pacifico', 'cursive'],
+          },
+          colors: {
+            romantic: {
+              bg: '#0f0c1b',
+              card: '#1a162b',
+              whiteGlow: '#ffffff',
+              silver: '#e2e8f0'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Prevent text selection and unwanted touch behaviors */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0f0c1b;
+      color: #ffffff;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 3D Flipbook Scene Container */
+    .book-container {
+      perspective: 1500px;
+      width: 90vw;
+      max-width: 380px;
+      height: 72vh;
+      max-height: 560px;
+      position: relative;
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .book {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+    }
+
+    /* Individual Book Page */
+    .page {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      transform-origin: left center;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+    }
+
+    /* Front and Back face of each page */
+    .page-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 18px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .page-front {
+      background: linear-gradient(145deg, #1f1b33, #120e24);
+      z-index: 2;
+    }
+
+    /* Cover Page styling */
+    .cover-front {
+      background: linear-gradient(135deg, #1b152d 0%, #2a2245 50%, #0d0a18 100%);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 25px rgba(255, 255, 255, 0.15);
+    }
+
+    /* Page flipped state */
+    .page.flipped {
+      transform: rotateY(-180deg);
+    }
+
+    /* Floating White Heart Effect */
+    @keyframes pulseHeart {
+      0% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.8));
+      }
+      50% {
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 30px rgba(255, 255, 255, 1)) drop-shadow(0 0 60px rgba(255, 255, 255, 0.9));
+      }
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.8));
+      }
+    }
+
+    .white-heart-glow {
+      animation: pulseHeart 2s infinite ease-in-out;
+      color: #ffffff;
+      text-shadow: 0 0 25px #ffffff, 0 0 50px #ffffff;
+    }
+
+    /* Glassmorphism Buttons */
+    .glass-btn {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Canvas full screen */
+    #fireworks-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    /* Page spine line */
+    .spine {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 10px;
+      background: linear-gradient(to right, rgba(0,0,0,0.5), transparent);
+      z-index: 10;
+      border-top-left-radius: 18px;
+      border-bottom-left-radius: 18px;
+    }
+
+    /* Image upload trigger area */
+    .img-container {
+      position: relative;
+      width: 100%;
+      height: 50%;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-between min-h-screen p-4 relative overflow-hidden">
+
+  <!-- Canvas para Fuegos Artificiales -->
+  <canvas id="fireworks-canvas"></canvas>
+
+  <!-- Encabezado Superior -->
+  <header id="app-header" class="w-full text-center pt-2 z-10 transition-opacity duration-500">
+    <span class="text-xs uppercase tracking-widest text-white/90 font-semibold bg-white/10 px-3 py-1 rounded-full border border-white/20">
+      🤍 Álbum de Recuerdos 🤍
+    </span>
+  </header>
+
+  <!-- Contenedor Principal del Libro 3D -->
+  <main class="flex-1 flex items-center justify-center w-full my-auto z-10">
+    
+    <div id="book-container" class="book-container">
+      <div id="book" class="book">
+
+        <!-- ================= PORTADA ================= -->
+        <div class="page cover-front" onclick="nextPage()">
+          <div class="spine"></div>
+          <div class="page-face flex flex-col justify-between items-center text-center p-6">
+            <div class="w-full flex justify-end">
+              <i class="fas fa-bookmark text-white text-xl"></i>
+            </div>
+            
+            <div class="space-y-4 my-auto">
+              <div class="w-20 h-20 mx-auto rounded-full bg-white/10 border border-white/40 flex items-center justify-center shadow-lg">
+                <i class="fas fa-heart text-3xl text-white animate-pulse"></i>
+              </div>
+              <h1 class="font-title text-3xl text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+                Nuestra Historia De Amor
+              </h1>
+              <p class="text-xs text-gray-200 font-light">Un viaje inolvidable por los mejores momentos de nuestras vidas.</p>
+            </div>
+
+            <div class="w-full text-center">
+              <p class="text-xs text-white animate-bounce flex items-center justify-center space-x-1 font-medium">
+                <span>Toca o desliza para abrir</span>
+                <i class="fas fa-chevron-right text-[10px]"></i>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PÁGINA 1: CONOCERNOS ================= -->
+        <div class="page" onclick="nextPage()">
+          <div class="spine"></div>
+          <div class="page-face page-front">
+            <div class="img-container group" onclick="triggerImageUpload(event, 'img1')">
+              <img id="img1" src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=80" alt="Recuerdo 1">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-[10px] text-white bg-black/60 px-2 py-1 rounded-full"><i class="fas fa-camera mr-1"></i> Cambiar foto</span>
+              </div>
+            </div>
+
+            <div class="my-auto space-y-2 text-center">
+              <span class="text-[10px] text-gray-300 uppercase tracking-widest font-semibold flex items-center justify-center space-x-1">
+                <i class="fas fa-heart text-white text-[9px]"></i>
+                <span>El Comienzo</span>
+              </span>
+              <h3 class="font-cursive text-2xl text-white font-bold">Cuando cruzamos miradas</h3>
+              <p class="text-xs text-gray-300 font-light leading-relaxed">
+                El día que nos conocimos todo cambió. Supe desde el primer instante que tu sonrisa marcaría mi vida para siempre.
+              </p>
+            </div>
+
+            <div class="flex justify-between items-center text-[10px] text-gray-400 pt-2 border-t border-white/10">
+              <span>Página 1</span>
+              <span>Siguiente <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PÁGINA 2: PRIMERAS CITAS ================= -->
+        <div class="page" onclick="nextPage()">
+          <div class="spine"></div>
+          <div class="page-face page-front">
+            <div class="img-container group" onclick="triggerImageUpload(event, 'img2')">
+              <img id="img2" src="Horas que parecían segundos.jpeg ">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-[10px] text-white bg-black/60 px-2 py-1 rounded-full"><i class="fas fa-camera mr-1"></i> Cambiar foto</span>
+              </div>
+            </div>
+
+            <div class="my-auto space-y-2 text-center">
+              <span class="text-[10px] text-gray-300 uppercase tracking-widest font-semibold flex items-center justify-center space-x-1">
+                <i class="fas fa-heart text-white text-[9px]"></i>
+                <span>Primeras Citas</span>
+              </span>
+              <h3 class="font-cursive text-2xl text-white font-bold">Horas que parecían segundos</h3>
+              <p class="text-xs text-gray-300 font-light leading-relaxed">
+                Nuestras primeras pláticas interminables y las mariposas en el estómago cada vez que te veía llegar.
+              </p>
+            </div>
+
+            <div class="flex justify-between items-center text-[10px] text-gray-400 pt-2 border-t border-white/10">
+              <span>Página 2</span>
+              <span>Siguiente <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PÁGINA 3: VIAJES Y PASEOS ================= -->
+        <div class="page" onclick="nextPage()">
+          <div class="spine"></div>
+          <div class="page-face page-front">
+            <div class="img-container group" onclick="triggerImageUpload(event, 'img3')">
+              <img id="img3" src="Coleccionando caminos.jpeg" alt="Recuerdo 3">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-[10px] text-white bg-black/60 px-2 py-1 rounded-full"><i class="fas fa-camera mr-1"></i> Cambiar foto</span>
+              </div>
+            </div>
+
+            <div class="my-auto space-y-2 text-center">
+              <span class="text-[10px] text-gray-300 uppercase tracking-widest font-semibold flex items-center justify-center space-x-1">
+                <i class="fas fa-heart text-white text-[9px]"></i>
+                <span>Aventuras</span>
+              </span>
+              <h3 class="font-cursive text-2xl text-white font-bold">Coleccionando caminos</h3>
+              <p class="text-xs text-gray-300 font-light leading-relaxed">
+                Cada viaje y cada paseo contigo se convierte en el destino perfecto. Ir a cualquier lugar es increíble si es a tu lado.
+              </p>
+            </div>
+
+            <div class="flex justify-between items-center text-[10px] text-gray-400 pt-2 border-t border-white/10">
+              <span>Página 3</span>
+              <span>Siguiente <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PÁGINA 4: MOMENTOS DIVERTIDOS ================= -->
+        <div class="page" onclick="nextPage()">
+          <div class="spine"></div>
+          <div class="page-face page-front">
+            <div class="img-container group" onclick="triggerImageUpload(event, 'img4')">
+              <img id="img4" src="Tu risa, mi lugar favorito.jpeg" alt="Recuerdo 4">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-[10px] text-white bg-black/60 px-2 py-1 rounded-full"><i class="fas fa-camera mr-1"></i> Cambiar foto</span>
+              </div>
+            </div>
+
+            <div class="my-auto space-y-2 text-center">
+              <span class="text-[10px] text-gray-300 uppercase tracking-widest font-semibold flex items-center justify-center space-x-1">
+                <i class="fas fa-heart text-white text-[9px]"></i>
+                <span>Risas y Locuras</span>
+              </span>
+              <h3 class="font-cursive text-2xl text-white font-bold">Tu risa, mi lugar favorito</h3>
+              <p class="text-xs text-gray-300 font-light leading-relaxed">
+                Tus ocurrencias y las risas espontáneas son la mejor medicina para cualquier mal día. Amo tu alegría contagiosa.
+              </p>
+            </div>
+
+            <div class="flex justify-between items-center text-[10px] text-gray-400 pt-2 border-t border-white/10">
+              <span>Página 4</span>
+              <span>Siguiente <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PÁGINA 5: DESAFÍOS Y APOYO ================= -->
+        <div class="page" onclick="nextPage()">
+          <div class="spine"></div>
+          <div class="page-face page-front">
+            <div class="img-container group" onclick="triggerImageUpload(event, 'img5')">
+              <img id="img5" src="Siempre tomados de la mano.jpeg" alt="Recuerdo 5">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-[10px] text-white bg-black/60 px-2 py-1 rounded-full"><i class="fas fa-camera mr-1"></i> Cambiar foto</span>
+              </div>
+            </div>
+
+            <div class="my-auto space-y-2 text-center">
+              <span class="text-[10px] text-gray-300 uppercase tracking-widest font-semibold flex items-center justify-center space-x-1">
+                <i class="fas fa-heart text-white text-[9px]"></i>
+                <span>Juntos en Todo</span>
+              </span>
+              <h3 class="font-cursive text-2xl text-white font-bold">Siempre tomados de la mano</h3>
+              <p class="text-xs text-gray-300 font-light leading-relaxed">
+                Hemos aprendido a superar momentos difíciles juntos. Tu apoyo incondicional me da fuerzas para seguir adelante siempre.
+              </p>
+            </div>
+
+            <div class="flex justify-between items-center text-[10px] text-gray-400 pt-2 border-t border-white/10">
+              <span>Página 5</span>
+              <span>Siguiente <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PÁGINA 6: CRECIMIENTO Y MADUREZ ================= -->
+        <div class="page" onclick="nextPage()">
+          <div class="spine"></div>
+          <div class="page-face page-front">
+            <div class="img-container group" onclick="triggerImageUpload(event, 'img6')">
+              <img id="img6" src="Creciendo juntos.jpeg" alt="Recuerdo 6">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-[10px] text-white bg-black/60 px-2 py-1 rounded-full"><i class="fas fa-camera mr-1"></i> Cambiar foto</span>
+              </div>
+            </div>
+
+            <div class="my-auto space-y-2 text-center">
+              <span class="text-[10px] text-gray-300 uppercase tracking-widest font-semibold flex items-center justify-center space-x-1">
+                <i class="fas fa-heart text-white text-[9px]"></i>
+                <span>Aprender y Amar</span>
+              </span>
+              <h3 class="font-cursive text-2xl text-white font-bold">Creciendo juntos</h3>
+              <p class="text-xs text-gray-300 font-light leading-relaxed">
+                Cada obstáculo superado nos ha hecho más fuertes. Valoro profundamente la madurez y paciencia que le ponemos a nuestro amor.
+              </p>
+            </div>
+
+            <div class="flex justify-between items-center text-[10px] text-gray-400 pt-2 border-t border-white/10">
+              <span>Página 6</span>
+              <span>Siguiente <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PÁGINA 7: RAZONES PARA AMARTE I ================= -->
+        <div class="page" onclick="nextPage()">
+          <div class="spine"></div>
+          <div class="page-face page-front">
+            <div class="img-container group" onclick="triggerImageUpload(event, 'img7')">
+              <img id="img7" src="Tu esencia única.jpeg" alt="Recuerdo 7">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-[10px] text-white bg-black/60 px-2 py-1 rounded-full"><i class="fas fa-camera mr-1"></i> Cambiar foto</span>
+              </div>
+            </div>
+
+            <div class="my-auto space-y-2 text-center">
+              <span class="text-[10px] text-gray-300 uppercase tracking-widest font-semibold flex items-center justify-center space-x-1">
+                <i class="fas fa-heart text-white text-[9px]"></i>
+                <span>Por Qué Te Amo</span>
+              </span>
+              <h3 class="font-cursive text-2xl text-white font-bold">Tu esencia única</h3>
+              <p class="text-xs text-gray-300 font-light leading-relaxed">
+                Amo tu dulzura, la manera en que cuidas a los demás y cómo me inspiras a intentar ser una mejor persona cada día.
+              </p>
+            </div>
+
+            <div class="flex justify-between items-center text-[10px] text-gray-400 pt-2 border-t border-white/10">
+              <span>Página 7</span>
+              <span>Siguiente <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PÁGINA 8: RAZONES PARA AMARTE II ================= -->
+        <div class="page" onclick="nextPage()">
+          <div class="spine"></div>
+          <div class="page-face page-front">
+            <div class="img-container group" onclick="triggerImageUpload(event, 'img8')">
+              <img id="img8" src="Un mañana a tu lado.jpeg" alt="Recuerdo 8">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-[10px] text-white bg-black/60 px-2 py-1 rounded-full"><i class="fas fa-camera mr-1"></i> Cambiar foto</span>
+              </div>
+            </div>
+
+            <div class="my-auto space-y-2 text-center">
+              <span class="text-[10px] text-gray-300 uppercase tracking-widest font-semibold flex items-center justify-center space-x-1">
+                <i class="fas fa-heart text-white text-[9px]"></i>
+                <span>Nuestro Futuro</span>
+              </span>
+              <h3 class="font-cursive text-2xl text-white font-bold">Un mañana a tu lado</h3>
+              <p class="text-xs text-gray-300 font-light leading-relaxed">
+                Porque cuando me imagino los años por venir, no puedo ver un futuro hermoso sin ti en él. Eres mi hogar.
+              </p>
+            </div>
+
+            <div class="flex justify-between items-center text-[10px] text-gray-400 pt-2 border-t border-white/10">
+              <span>Página 8</span>
+              <span>Siguiente <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PÁGINA FINAL ================= -->
+        <div class="page" id="final-page">
+          <div class="spine"></div>
+          <div class="page-face page-front flex flex-col justify-between items-center text-center p-6 bg-gradient-to-b from-[#241c3d] to-[#100b21]">
+            
+            <div class="w-14 h-14 rounded-full bg-white/10 border border-white/30 flex items-center justify-center mt-2 shadow-lg">
+              <i class="fas fa-heart text-white text-2xl animate-pulse"></i>
+            </div>
+
+            <div class="space-y-3 my-auto">
+              <span class="text-xs uppercase tracking-widest text-gray-200 font-semibold">De mi corazón para ti</span>
+              <!-- TE AMO grande -->
+              <h2 class="font-cursive text-6xl text-white font-bold drop-shadow-[0_0_15px_rgba(255,255,255,0.9)]">
+                TE AMO
+              </h2>
+              <p class="text-xs text-gray-300 font-light px-2">
+                Gracias por formar parte de mi vida y regalarme los momentos más lindos.
+              </p>
+            </div>
+
+            <!-- Botón "Toca para cerrar" -->
+            <button onclick="closeBookAndShowFinale(event)" class="glass-btn w-full py-3.5 rounded-2xl text-white font-medium border border-white/40 shadow-xl active:scale-95 transition-transform flex items-center justify-center space-x-2">
+              <i class="fas fa-heart text-xs text-white"></i>
+              <span>Toca para cerrar</span>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Controles táctiles de navegación inferiores -->
+  <footer id="book-controls" class="w-full flex justify-between items-center px-6 pb-4 max-w-sm z-10 transition-opacity duration-500">
+    <button onclick="prevPage()" class="glass-btn px-4 py-2 rounded-xl text-xs text-white flex items-center space-x-1 active:scale-95">
+      <i class="fas fa-chevron-left"></i>
+      <span>Anterior</span>
+    </button>
+
+    <span id="page-indicator" class="text-xs text-gray-200 font-medium">1 / 9</span>
+
+    <button onclick="nextPage()" class="glass-btn px-4 py-2 rounded-xl text-xs text-white flex items-center space-x-1 active:scale-95">
+      <span>Siguiente</span>
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </footer>
+
+  <!-- Input oculto para cambiar imágenes fácilmente -->
+  <input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImageSelected(event)">
+
+
+  <!-- ================= PANTALLA FINAL DE CELEBRACIÓN ================= -->
+  <div id="finale-screen" class="fixed inset-0 flex flex-col items-center justify-center p-6 z-30 opacity-0 pointer-events-none transition-opacity duration-1000 bg-black/85 backdrop-blur-md">
+    
+    <div class="text-center space-y-8 max-w-sm w-full flex flex-col items-center">
+      
+      <!-- Corazón Blanco Gigante Animado -->
+      <div class="relative flex items-center justify-center my-4">
+        <i class="fas fa-heart text-8xl sm:text-9xl white-heart-glow"></i>
+      </div>
+
+      <!-- Mensaje Destacado -->
+      <div class="space-y-4 px-2">
+        <h1 class="font-title text-3xl sm:text-4xl text-white drop-shadow-[0_0_25px_rgba(255,255,255,1)] leading-snug">
+          Te amo demasiado mi polola nunca lo olvides
+        </h1>
+        
+        <p class="text-xs text-gray-200 font-light tracking-wide pt-2">
+          Eres lo más lindo que me ha pasado 🤍
+        </p>
+      </div>
+
+      <!-- Botón para reiniciar o volver a ver -->
+      <button onclick="restartBook()" class="glass-btn px-6 py-3 rounded-full text-xs text-white font-medium border border-white/40 shadow-2xl active:scale-95 transition-transform flex items-center space-x-2 mt-4">
+        <i class="fas fa-redo"></i>
+        <span>Volver a ver el libro</span>
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- LÓGICA JAVASCRIPT -->
+  <script>
+    /* ================= 1. GESTIÓN DEL FLIPBOOK 3D ================= */
+    const pages = document.querySelectorAll('.page');
+    let currentPageIndex = 0;
+    const totalPages = pages.length;
+    const pageIndicator = document.getElementById('page-indicator');
+
+    function updateZIndex() {
+      pages.forEach((page, index) => {
+        if (index < currentPageIndex) {
+          page.style.zIndex = index + 1;
+        } else {
+          page.style.zIndex = totalPages - index;
+        }
+      });
+      pageIndicator.innerText = `${currentPageIndex + 1} / ${totalPages}`;
+    }
+    updateZIndex();
+
+    function nextPage() {
+      if (currentPageIndex < totalPages - 1) {
+        pages[currentPageIndex].classList.add('flipped');
+        currentPageIndex++;
+        updateZIndex();
+      }
+    }
+
+    function prevPage() {
+      if (currentPageIndex > 0) {
+        currentPageIndex--;
+        pages[currentPageIndex].classList.remove('flipped');
+        updateZIndex();
+      }
+    }
+
+    /* Soporte para Gestos Táctiles (Swipe) */
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const bookContainer = document.getElementById('book-container');
+
+    bookContainer.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+
+    bookContainer.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, false);
+
+    function handleSwipe() {
+      const swipeDistance = touchEndX - touchStartX;
+      if (swipeDistance < -40) {
+        nextPage();
+      } else if (swipeDistance > 40) {
+        prevPage();
+      }
+    }
+
+
+    /* ================= 2. PERSONALIZACIÓN DE FOTOS ================= */
+    let currentImageTargetId = null;
+
+    function triggerImageUpload(e, imgId) {
+      e.stopPropagation();
+      currentImageTargetId = imgId;
+      document.getElementById('image-input').click();
+    }
+
+    function handleImageSelected(e) {
+      const file = e.target.files[0];
+      if (file && currentImageTargetId) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          document.getElementById(currentImageTargetId).src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+
+    /* ================= 3. CIERRE DEL LIBRO Y SHOW DE FUEGOS ARTIFICIALES ================= */
+    function closeBookAndShowFinale(e) {
+      if (e) e.stopPropagation();
+
+      const bookElem = document.getElementById('book-container');
+      const headerElem = document.getElementById('app-header');
+      const controlsElem = document.getElementById('book-controls');
+
+      bookElem.style.opacity = '0';
+      bookElem.style.transform = 'scale(0.8) translateY(50px)';
+      headerElem.style.opacity = '0';
+      controlsElem.style.opacity = '0';
+
+      startFireworks();
+
+      setTimeout(() => {
+        const finaleScreen = document.getElementById('finale-screen');
+        finaleScreen.classList.remove('pointer-events-none');
+        finaleScreen.style.opacity = '1';
+      }, 800);
+    }
+
+    function restartBook() {
+      const finaleScreen = document.getElementById('finale-screen');
+      finaleScreen.style.opacity = '0';
+      finaleScreen.classList.add('pointer-events-none');
+
+      stopFireworks();
+
+      pages.forEach(page => page.classList.remove('flipped'));
+      currentPageIndex = 0;
+      updateZIndex();
+
+      const bookElem = document.getElementById('book-container');
+      const headerElem = document.getElementById('app-header');
+      const controlsElem = document.getElementById('book-controls');
+
+      setTimeout(() => {
+        bookElem.style.opacity = '1';
+        bookElem.style.transform = 'scale(1) translateY(0)';
+        headerElem.style.opacity = '1';
+        controlsElem.style.opacity = '1';
+      }, 500);
+    }
+
+
+    /* ================= 4. FUEGOS ARTIFICIALES BLANCOS (CANVAS) ================= */
+    const canvas = document.getElementById('fireworks-canvas');
+    const ctx = canvas.getContext('2d');
+    let fireworks = [];
+    let particles = [];
+    let animationId = null;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Firework {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height;
+        this.targetY = Math.random() * (canvas.height * 0.5) + (canvas.height * 0.1);
+        this.speed = Math.random() * 4 + 7;
+        this.angle = Math.PI / 2 + (Math.random() - 0.5) * 0.2;
+        this.vx = Math.cos(this.angle) * this.speed;
+        this.vy = -Math.sin(this.angle) * this.speed;
+        this.exploded = false;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.vy < 0 && this.y <= this.targetY) {
+          this.exploded = true;
+          this.explode();
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+      }
+
+      explode() {
+        const particleCount = Math.floor(Math.random() * 40) + 60;
+        for (let i = 0; i < particleCount; i++) {
+          particles.push(new Particle(this.x, this.y));
+        }
+      }
+    }
+
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 6 + 1;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+        this.friction = 0.95;
+        this.gravity = 0.12;
+        this.alpha = 1;
+        this.decay = Math.random() * 0.02 + 0.015;
+        // Tonos entre blanco puro y plata
+        this.lightness = Math.random() * 30 + 70;
+      }
+
+      update() {
+        this.vx *= this.friction;
+        this.vy *= this.friction;
+        this.vy += this.gravity;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.alpha -= this.decay;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(0, 0%, ${this.lightness}%, ${this.alpha})`;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function animateFireworks() {
+      ctx.fillStyle = 'rgba(15, 12, 27, 0.2)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (Math.random() < 0.15) {
+        fireworks.push(new Firework());
+      }
+
+      for (let i = fireworks.length - 1; i >= 0; i--) {
+        fireworks[i].update();
+        fireworks[i].draw();
+        if (fireworks[i].exploded) {
+          fireworks.splice(i, 1);
+        }
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].draw();
+        if (particles[i].alpha <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+
+      animationId = requestAnimationFrame(animateFireworks);
+    }
+
+    function startFireworks() {
+      fireworks = [];
+      particles = [];
+      if (!animationId) {
+        animateFireworks();
+      }
+    }
+
+    function stopFireworks() {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
+</body>
+</html>
